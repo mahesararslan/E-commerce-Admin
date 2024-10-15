@@ -12,12 +12,8 @@ body {
   }
 }
 
-input, textarea {
-  @apply border-2 border-gray-300 rounded-md px-1 w-full mb-2 focus:border-blue-900 focus:outline-none ;
-}
-
 h1 {
-  @apply text-blue-900 text-xl  mb-2 font-bold
+  @apply text-zinc-800 text-xl  mb-2 font-bold
 }
 
 @layer base {

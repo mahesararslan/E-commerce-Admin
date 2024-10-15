@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -22,7 +21,7 @@ export function Navbar({ userDetails, onMenuClick }: {
   if(userDetails){
     console.log("userDetails: ", userDetails)
     return (
-        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-800 bg-zinc-800">
+        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-700 bg-gray-800">
           <div className="mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex h-16 justify-between">
               <div className="flex">
@@ -43,7 +42,7 @@ export function Navbar({ userDetails, onMenuClick }: {
                     <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={userDetails?.image} alt={userDetails?.name} />
-                        <AvatarFallback>{userDetails?.name?.charAt(0)}</AvatarFallback>
+                        <AvatarFallback><img src={userDetails?.image} alt="" /></AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
@@ -65,6 +64,9 @@ export function Navbar({ userDetails, onMenuClick }: {
           </div>
         </nav>
       )
+  }
+  else {
+    return <div></div>
   }
   
 }

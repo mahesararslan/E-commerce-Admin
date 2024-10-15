@@ -29,8 +29,12 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     
     try {
         await mongooseConnect();
-
-        const product = await Product.findByIdAndUpdate(id, data, { new: true });
+        console.log("Reieved Request for id: ", id, data);
+        const product = await Product.findByIdAndUpdate(id, {
+            name: data.productName,
+            description: data.productDescription,
+            price: data.price
+        }, { new: true });
 
         if (!product) {
             return NextResponse.json({ message: "Product not found", status: 401 });

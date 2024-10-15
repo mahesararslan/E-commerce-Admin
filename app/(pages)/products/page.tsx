@@ -59,11 +59,9 @@ export default function ProductsPage() {
   const handleDelete = async (productId: string) => {
     try {
       // Send DELETE request to your backend
-      const response = await fetch(`/api/products/${productId}`, {
-        method: "DELETE",
-      })
+      const response = await axios.delete(`/api/products/${productId}`)
 
-      if (response.ok) {
+      if (response.status === 200) { 
         // Remove the product from the local state 
         setProducts(products.filter((product: any) => product._id !== productId))
       } else {
@@ -77,7 +75,7 @@ export default function ProductsPage() {
 
   return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Products</h1>
+            <h1 className="text-4xl font-bold mb-4">Products</h1>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                 <Link href="/products/new">
                 <Button>Add New Product</Button>

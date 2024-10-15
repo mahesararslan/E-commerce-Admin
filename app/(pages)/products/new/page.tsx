@@ -79,13 +79,13 @@ export default function AddProductForm() {
 
   return (
     <div>
-        <h1>Add New Product</h1>
+        <h1 className="text-4xl font-bold">Add New Product</h1>
         <Link href="/products">
           <div className="w-full flex justify-end  text-blue-900 font-bold text-md ">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
             </svg>
-            <div>Products Page</div>
+            <div className="text-zinc-700 font-bold" >Products Page</div>
           </div>
         </Link>
         <Form {...form}>
