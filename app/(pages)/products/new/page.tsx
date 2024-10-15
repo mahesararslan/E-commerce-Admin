@@ -19,9 +19,11 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
-import Outline from "@/app/Outline"
+import Outline from "@/components/Outline"
 import axios from "axios"
 import { Toaster } from "@/components/ui/toaster"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
   productName: z.string().min(2, {
@@ -36,6 +38,7 @@ const formSchema = z.object({
 })
 
 export default function AddProductForm() {
+  const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
 
@@ -50,10 +53,7 @@ export default function AddProductForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    console.log(values)
-    setIsSubmitting(false)
+    
     const response = await axios.post("/api/products", values)
     console.log("Resoponse: ", response.data.status)
     if(response.data.status == 200) {
@@ -61,19 +61,33 @@ export default function AddProductForm() {
             title: "Product Added",
             description: "Your new product has been successfully added.",
           })
-        //   form.reset()
+        form.reset()
+        setIsSubmitting(false)
+        // add timeinterval to redirect to products page
+        setTimeout(() => {
+            router.push("/products")
+        }, 2000)
     }
     else {
         toast({
             title: "Error",
             description: "An error occurred while adding your product."
           })
+        setIsSubmitting(false)
     }
   }
 
   return (
-    <Outline>
+    <div>
         <h1>Add New Product</h1>
+        <Link href="/products">
+          <div className="w-full flex justify-end  text-blue-900 font-bold text-md ">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
+            </svg>
+            <div>Products Page</div>
+          </div>
+        </Link>
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <FormField
@@ -81,7 +95,7 @@ export default function AddProductForm() {
                 name="productName"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Product Name</FormLabel>
+                    <FormLabel className="text-md">Product Name</FormLabel>
                     <FormControl>
                         <Input
                         placeholder="Enter product name"
@@ -101,7 +115,7 @@ export default function AddProductForm() {
                 name="productDescription"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Product Description</FormLabel>
+                    <FormLabel className="text-md">Product Description</FormLabel>
                     <FormControl>
                         <Textarea
                         placeholder="Describe your product"
@@ -121,7 +135,7 @@ export default function AddProductForm() {
                 name="price"
                 render={({ field }) => (
                     <FormItem>
-                    <FormLabel>Price (USD)</FormLabel>
+                    <FormLabel className="text-md">Price (USD)</FormLabel>
                     <FormControl>
                         <Input
                         type="number"
@@ -155,6 +169,6 @@ export default function AddProductForm() {
             </form>
         </Form>
         <Toaster />
-    </Outline>
+    </div>
   )
 }
