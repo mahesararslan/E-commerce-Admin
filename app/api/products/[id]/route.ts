@@ -1,9 +1,20 @@
 import { mongooseConnect } from "@/app/lib/mongoose";
 import { Product } from "@/models/product";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import authOptions from "@/app/lib/auth";
 
 // GET a single product by ID
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+        return NextResponse.json({
+            status: 401,
+            mesdage: "Unauthorized"
+        });
+    }
+
     const { id } = params;
     
     try {
@@ -24,6 +35,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
 // PUT (update) a product by ID
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+        return NextResponse.json({
+            status: 401,
+            mesdage: "Unauthorized"
+        });
+    }
+
     const { id } = params;
     const data = await req.json();
     

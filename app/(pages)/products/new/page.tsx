@@ -4,7 +4,7 @@ import { useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Loader2, Upload } from "lucide-react"
+import { Loader2, Upload, X } from "lucide-react"
 import { CldUploadWidget } from 'next-cloudinary'
 
 import { Button } from "@/components/ui/button"
@@ -175,7 +175,7 @@ export default function AddProductForm() {
                               field.onChange(newImages);
                             }}
                           >
-                            <Upload className="h-4 w-4" />
+                            <X className="h-4 w-4" />
                           </Button>
                         </div>
                       ))}
@@ -208,7 +208,7 @@ export default function AddProductForm() {
           />
           <Button
             type="submit"
-            className="w-full transition-all duration-300 hover:bg-blue-600"
+            className="w-full transition-all duration-300 hover:bg-gray-700"
             disabled={isSubmitting}
           >
             {isSubmitting ? (

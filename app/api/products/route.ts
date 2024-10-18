@@ -2,6 +2,8 @@ import { mongooseConnect } from "@/app/lib/mongoose";
 import { Product } from "@/models/product";
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from 'cloudinary'
+import { getServerSession } from "next-auth";
+import authOptions from "@/app/lib/auth";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -10,6 +12,15 @@ cloudinary.config({
 })
 
 export async function POST(request: Request) {
+
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+        return NextResponse.json({
+            status: 401,
+            mesdage: "Unauthorized"
+        });
+    }
+
   try {
     const { productName, productDescription, price, images } = await request.json()
 
@@ -34,19 +45,3 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET(req: NextRequest) {
-    try {
-        await mongooseConnect();
-
-        const products = await Product.find({});
-
-        return NextResponse.json(products);
-    }
-    catch (error) {
-        console.error("Error: ", error);
-        return NextResponse.json({
-            message: "Error connecting to MongoDB",
-            status: 500
-        });
-    }
-}
