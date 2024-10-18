@@ -12,7 +12,11 @@ const ProductSchema = new Schema({
     description: {
         type: String,
         required: true
-    }
+    },
+    images: { 
+        type: [String],
+        required: true 
+    },
 })
 
 export const Product = models.Product || model('Product', ProductSchema)

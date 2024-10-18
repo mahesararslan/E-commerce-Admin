@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { Loader2 } from "lucide-react"
+import { Loader2, Upload } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -21,11 +21,14 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import axios from "axios"
 import { Toaster } from "@/components/ui/toaster"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { CldUploadWidget } from 'next-cloudinary'
 import Loader from "@/components/loader"
+import Link from "next/link"
 
-// Define the schema
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+
+// Define the schema with images
 const formSchema = z.object({
   productName: z.string().min(2, {
     message: "Product name must be at least 2 characters.",
@@ -36,9 +39,10 @@ const formSchema = z.object({
   price: z.number().min(0.01, {
     message: "Price must be at least $0.01.",
   }),
+  images: z.array(z.string()).min(1, "At least one image is required.").max(5, "You can upload a maximum of 5 images."),
 })
 
-export default function AddProductForm() {
+export default function EditProductForm() {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const { toast } = useToast()
@@ -46,32 +50,32 @@ export default function AddProductForm() {
   const [product, setProduct] = useState<any | null>(null)
   const [loader, setLoader] = useState<boolean>(true)
 
-  // Form initialization
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       productName: "",
       productDescription: "",
       price: 0,
+      images: [],
     },
   })
 
   useEffect(() => {
-    // Access the ID directly from the pathname
     const pathParts = window.location.pathname.split('/')
     const productId = pathParts[pathParts.length - 1]
     setId(productId)
 
     axios.get(`/api/products/${productId}`).then((response) => {
-      console.log(response.data)
-      setProduct(response.data.product)
+      const productData = response.data.product
+      setProduct(productData)
       setLoader(false)
 
-      // Reset form with fetched product data
+      // Reset form with fetched product data including images
       form.reset({
-        productName: response.data.product.name,
-        productDescription: response.data.product.description,
-        price: response.data.product.price,
+        productName: productData.name,
+        productDescription: productData.description,
+        price: productData.price,
+        images: productData.images || [],
       })
     })
   }, [form])
@@ -86,34 +90,35 @@ export default function AddProductForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
-    console.log("Sending request to update product: ", values)
-    const response = await axios.put(`/api/products/${product._id}`, values)
-    console.log("Response: ", response.data.status)
-    if (response.data.status == 200) {
-      toast({
-        title: "Updated Successfully",
-        description: "Your new product has been successfully updated.",
-      })
-      form.reset()
-      setIsSubmitting(false)
-      // add timeinterval to redirect to products page
-      setTimeout(() => {
-        router.push("/products")
-      }, 2000)
-    } else {
+    try {
+      const response = await axios.put(`/api/products/${product._id}`, values)
+
+      if (response.status === 200) {
+        toast({
+          title: "Product Updated",
+          description: "Your product has been successfully updated.",
+        })
+        setTimeout(() => {
+          router.push("/products")
+        }, 2000)
+      } else {
+        throw new Error("Error updating product")
+      }
+    } catch (error) {
       toast({
         title: "Error",
-        description: "An error occurred while adding your product.",
+        description: "Failed to update product. Please try again.",
+        variant: "destructive",
       })
+    } finally {
       setIsSubmitting(false)
     }
   }
 
   return (
-    <div>
-      <h1>Add New Product</h1>
+    <>
       <Link href="/products">
-        <div className="w-full flex justify-end text-blue-900 font-bold text-md ">
+        <div className="w-full flex justify-end text-blue-900 font-bold text-md">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -131,84 +136,129 @@ export default function AddProductForm() {
           <div className="text-zinc-700 font-bold">Products Page</div>
         </div>
       </Link>
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* Product Name Field */}
           <FormField
             control={form.control}
             name="productName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-md">Product Name</FormLabel>
+                <FormLabel>Product Name</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    className="transition-all duration-300 focus:ring-2 focus:ring-primary"
-                  />
+                  <Input {...field} className="transition-all duration-300 focus:ring-2 focus:ring-blue-500" />
                 </FormControl>
-                <FormDescription>
-                  The name of your product as it will appear to customers.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          {/* Product Description Field */}
           <FormField
             control={form.control}
             name="productDescription"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-md">Product Description</FormLabel>
+                <FormLabel>Product Description</FormLabel>
                 <FormControl>
-                  <Textarea
-                    {...field}
-                    className="min-h-[100px] transition-all duration-300 focus:ring-2 focus:ring-primary"
-                  />
+                  <Textarea {...field} className="min-h-[100px] transition-all duration-300 focus:ring-2 focus:ring-blue-500" />
                 </FormControl>
-                <FormDescription>
-                  Provide a detailed description of your product.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
+
+          {/* Price Field */}
           <FormField
             control={form.control}
             name="price"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-md">Price (USD)</FormLabel>
+                <FormLabel>Price (USD)</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
                     {...field}
                     onChange={(e) => field.onChange(parseFloat(e.target.value))}
-                    className="transition-all duration-300 focus:ring-2 focus:ring-primary"
+                    className="transition-all duration-300 focus:ring-2 focus:ring-blue-500"
                   />
                 </FormControl>
-                <FormDescription>
-                  Set the price for your product in USD.
-                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button
-            type="submit"
-            className="w-full transition-all duration-300 hover:bg-primary/90"
-            disabled={isSubmitting}
-          >
+
+          {/* Product Images Field */}
+          <FormField
+            control={form.control}
+            name="images"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Product Images</FormLabel>
+                <FormControl>
+                  <div className="space-y-4">
+                    <div className="flex flex-wrap gap-4">
+                      {field.value.map((url, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={url}
+                            alt={`Product image ${index + 1}`}
+                            className="h-24 w-24 object-cover rounded-md"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute -top-2 -right-2 h-6 w-6"
+                            onClick={() => {
+                              const newImages = [...field.value]
+                              newImages.splice(index, 1)
+                              field.onChange(newImages)
+                            }}
+                          >
+                            <Upload className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    {field.value.length < 5 && (
+                      <CldUploadWidget
+                        uploadPreset="e-commerce-admin"
+                        onSuccess={(result) => { // @ts-ignore
+                          const newImages = [...field.value, result.info.secure_url]
+                          field.onChange(newImages)
+                        }}
+                      >
+                        {({ open }) => (
+                          <Button type="button" variant="outline" onClick={() => open()}>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload Images
+                          </Button>
+                        )}
+                      </CldUploadWidget>
+                    )}
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Submit Button */}
+          <Button type="submit" className="w-full transition-all duration-300 hover:bg-blue-600" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving Changes...
+                Updating Product...
               </>
             ) : (
-              "Save Changes"
+              "Update Product"
             )}
           </Button>
         </form>
       </Form>
       <Toaster />
-    </div>
+    </>
   )
 }

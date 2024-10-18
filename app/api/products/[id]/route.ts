@@ -33,7 +33,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         const product = await Product.findByIdAndUpdate(id, {
             name: data.productName,
             description: data.productDescription,
-            price: data.price
+            price: data.price,
+            images: data.images,
         }, { new: true });
 
         if (!product) {
