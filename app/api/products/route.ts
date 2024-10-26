@@ -1,15 +1,8 @@
 import { mongooseConnect } from "@/app/lib/mongoose";
 import { Product } from "@/models/product";
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from 'cloudinary'
 import { getServerSession } from "next-auth";
 import authOptions from "@/app/lib/auth";
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-})
 
 export async function POST(request: Request) {
 
@@ -22,7 +15,7 @@ export async function POST(request: Request) {
     }
 
   try {
-    const { productName, productDescription, price, images } = await request.json()
+    const { productName, productDescription, price, images, stock, categoryId } = await request.json()
 
     // Connect to MongoDB
     await mongooseConnect()
@@ -33,6 +26,8 @@ export async function POST(request: Request) {
       description: productDescription,
       price: price,
       images: images,
+      stock: stock,
+      category: categoryId
     }
 
     // Insert the new product into the database
@@ -45,3 +40,22 @@ export async function POST(request: Request) {
   }
 }
 
+
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) {
+    return NextResponse.json({
+      status: 401,
+      message: "Unauthorized"
+    });
+  }
+
+  try {
+    await mongooseConnect()
+    const products = await Product.find()
+    return NextResponse.json(products)
+  } catch (error) {
+    console.error('Error fetching products:', error)
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
+  }
+}

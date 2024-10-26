@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -21,6 +21,14 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import axios from "axios"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
@@ -34,11 +42,18 @@ const formSchema = z.object({
   price: z.number().min(0.01, {
     message: "Price must be at least $0.01.",
   }),
+  categoryId: z.string({
+    required_error: "Please select a category.",
+  }),
+  stock: z.number().int().min(0, {
+    message: "Stock must be a non-negative integer.",
+  }),
   images: z.array(z.string()).min(1, "At least one image is required.").max(5, "You can upload a maximum of 5 images."),
 })
 
 export default function AddProductForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [categories, setCategories] = useState([])
   const { toast } = useToast()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -47,9 +62,32 @@ export default function AddProductForm() {
       productName: "",
       productDescription: "",
       price: 0,
+      categoryId: "",
+      stock: 0,
       images: [],
     },
   })
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('/api/category');
+        if (response.data.status !== 200) {
+          throw new Error('Failed to fetch categories')
+        }
+        setCategories(response.data.categories)
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load categories. Please try again.",
+          variant: "destructive",
+        })
+      }
+    }
+
+    fetchCategories()
+  }, [toast])
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
@@ -150,6 +188,55 @@ export default function AddProductForm() {
           />
           <FormField
             control={form.control}
+            name="categoryId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {categories.map((category: any) => (
+                      <SelectItem key={category._id} value={category._id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Choose the category that best fits your product.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="stock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stock</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                    className="transition-all duration-300 focus:ring-2 focus:ring-blue-500"
+                  />
+                </FormControl>
+                <FormDescription>
+                  Enter the number of items in stock.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="images"
             render={({ field }) => (
               <FormItem>
@@ -208,7 +295,7 @@ export default function AddProductForm() {
           />
           <Button
             type="submit"
-            className="w-full transition-all duration-300 hover:bg-gray-700"
+            className="w-full transition-all duration-300 bg-gray-800 hover:bg-gray-700"
             disabled={isSubmitting}
           >
             {isSubmitting ? (

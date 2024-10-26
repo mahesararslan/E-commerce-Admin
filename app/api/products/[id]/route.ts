@@ -55,6 +55,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
             description: data.productDescription,
             price: data.price,
             images: data.images,
+            stock: data.stock,
+            category: data.categoryId
         }, { new: true });
 
         if (!product) {

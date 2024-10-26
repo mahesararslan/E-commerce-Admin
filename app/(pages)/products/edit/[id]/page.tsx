@@ -5,6 +5,13 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { Loader2, Upload, X } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -39,6 +46,12 @@ const formSchema = z.object({
   price: z.number().min(0.01, {
     message: "Price must be at least $0.01.",
   }),
+  categoryId: z.string({
+    required_error: "Please select a category.",
+  }),
+  stock: z.number().int().min(0, {
+    message: "Stock must be a non-negative integer.",
+  }),
   images: z.array(z.string()).min(1, "At least one image is required.").max(5, "You can upload a maximum of 5 images."),
 })
 
@@ -49,6 +62,7 @@ export default function EditProductForm() {
   const [id, setId] = useState<string | null>(null)
   const [product, setProduct] = useState<any | null>(null)
   const [loader, setLoader] = useState<boolean>(true)
+  const [categories, setCategories] = useState([])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,9 +70,32 @@ export default function EditProductForm() {
       productName: "",
       productDescription: "",
       price: 0,
+      categoryId: "",
+      stock: 0,
       images: [],
     },
   })
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('/api/category');
+        if (response.data.status !== 200) {
+          throw new Error('Failed to fetch categories')
+        }
+        setCategories(response.data.categories)
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+        toast({
+          title: "Error",
+          description: "Failed to load categories. Please try again.",
+          variant: "destructive",
+        })
+      }
+    }
+
+    fetchCategories()
+  }, [toast])
 
   useEffect(() => {
     const pathParts = window.location.pathname.split('/')
@@ -76,6 +113,8 @@ export default function EditProductForm() {
         productDescription: productData.description,
         price: productData.price,
         images: productData.images || [],
+        stock: productData.stock,
+        categoryId: productData.category,
       })
     })
   }, [form])
@@ -188,6 +227,55 @@ export default function EditProductForm() {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="categoryId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {categories.map((category: any) => (
+                      <SelectItem key={category._id} value={category._id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Choose the category that best fits your product.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="stock"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Stock</FormLabel>
+                <FormControl>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    {...field}
+                    onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
+                    className="transition-all duration-300 focus:ring-2 focus:ring-blue-500"
+                  />
+                </FormControl>
+                <FormDescription>
+                  Enter the number of items in stock.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           {/* Product Images Field */}
           <FormField
@@ -246,7 +334,7 @@ export default function EditProductForm() {
           />
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full transition-all duration-300 hover:bg-gray-700" disabled={isSubmitting}>
+          <Button type="submit" className="w-full transition-all duration-300 bg-gray-800 hover:bg-gray-700" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
