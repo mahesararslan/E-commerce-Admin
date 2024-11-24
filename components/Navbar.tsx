@@ -1,5 +1,7 @@
 "use client"
 
+import logo from "@/public/logo3.png"
+import Image from "next/image";
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -31,8 +33,8 @@ export function Navbar({ userDetails, onMenuClick }: {
                     <span className="sr-only">Open sidebar</span>
                   </Button>
                   <Link href="/dashboard" className="flex items-center">
-                    <span className="text-2xl font-bold text-white md:hidden">DH</span>
-                    <span className="hidden text-2xl font-bold text-white md:block">DeviceHaven</span>
+                   {/* Logo Image */}
+                    <Image src={logo} alt="DeviceHaven" height={170} width={170} />
                   </Link>
                 </div>
               </div>

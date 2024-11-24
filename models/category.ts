@@ -9,6 +9,10 @@ const CategorySchema = new Schema({
     parentCategory: {
         type: Schema.Types.ObjectId,
         ref: "Category",
+    }, // 1 image 
+    image: {
+        type: String,
+        required: true,
     },
 });
 

@@ -33,8 +33,6 @@ import { CldUploadWidget } from 'next-cloudinary'
 import Loader from "@/components/loader"
 import Link from "next/link"
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-
 // Define the schema with images
 const formSchema = z.object({
   productName: z.string().min(2, {
@@ -130,6 +128,7 @@ export default function EditProductForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
     try {
+      console.log("Product: ", values)
       const response = await axios.put(`/api/products/${product._id}`, values)
 
       if (response.status === 200) {
@@ -314,8 +313,9 @@ export default function EditProductForm() {
                       <CldUploadWidget
                         uploadPreset="e-commerce-admin"
                         onSuccess={(result) => { // @ts-ignore
-                          const newImages = [...field.value, result.info.secure_url]
-                          field.onChange(newImages)
+                          field.value = [...field.value, result.info.secure_url]; // @ts-ignore
+                          field.onChange(field.value); // @ts-ignore
+                          console.log("FIELDN VALUE: \n", field.value)
                         }}
                       >
                         {({ open }) => (

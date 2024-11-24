@@ -85,7 +85,7 @@ export default function AddProductForm() {
         })
       }
     }
-
+    console.log(categories)
     fetchCategories()
   }, [toast])
 
@@ -271,8 +271,10 @@ export default function AddProductForm() {
                       <CldUploadWidget
                         uploadPreset="e-commerce-admin"
                         onSuccess={(result) => { // @ts-ignore
-                          const newImages = [...field.value, result.info.secure_url];
-                          field.onChange(newImages);
+                          console.log(result.info) // @ts-ignore 
+                          field.value = [...field.value, result.info.secure_url]; // @ts-ignore
+                          field.onChange(field.value); // @ts-ignore
+                          console.log("FIELDN VALUE: \n", field.value)
                         }
                         }
                       >

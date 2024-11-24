@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { name, parentCategory  } = await req.json();
+        const { name, parentCategory, image  } = await req.json();
 
         if (!name) {
             return NextResponse.json({
@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
 
         await mongooseConnect();
 
-        if(!parentCategory || parentCategory === "0") {
-            const category = await Category.create({ name });
+        if(!parentCategory || parentCategory === "none") {
+            const category = await Category.create({ name, image });
             return NextResponse.json({
                 status: 200,
                 message: "Category added successfully", category
@@ -36,7 +36,8 @@ export async function POST(req: NextRequest) {
 
         const category = await Category.create({ 
             name,
-            parentCategory: parentCategory
+            parentCategory: parentCategory,
+            image
          });
 
         return NextResponse.json({

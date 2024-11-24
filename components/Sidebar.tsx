@@ -1,5 +1,6 @@
 "use client"
 
+import { signOut } from "next-auth/react"
 import { useState, useEffect, forwardRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -95,7 +96,7 @@ export const Sidebar = forwardRef<HTMLDivElement, { className?: string }>(
             <Button
               variant="outline"
               className="w-full justify-start bg-gray-800 hover:bg-gray-800 text-white hover:text-white hover:font-bold"
-              onClick={() => console.log("Logout clicked")}
+              onClick={() => signOut({ callbackUrl: "/" })}
             >
               <LogOut className="mr-3 h-6 w-6" />
               Logout

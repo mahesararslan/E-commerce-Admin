@@ -111,9 +111,9 @@ export default function ProductsPage() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Products</h1>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <Link href="/admin/products/add">
+        <Link href="/products/new">
           <Button>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus className="mr-2 h-4 w-4 bg-gray-800 hover:bg-gray-700" />
             Add New Product
           </Button>
         </Link>
@@ -139,7 +139,7 @@ export default function ProductsPage() {
                       <img
                         src={image}
                         alt={`${product.name} - Image ${index + 1}`}
-                        className="w-full h-48 object-cover"
+                        className="w-full h-72 object-cover"
                       />
                     </CarouselItem>
                   ))}
