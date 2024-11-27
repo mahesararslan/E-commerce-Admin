@@ -23,11 +23,14 @@ import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 import { Pencil, Trash2, Plus, Search } from 'lucide-react'
 import axios from "axios"
+import { set } from "mongoose"
+import Loader from "@/components/loader"
 
 // Define the category type
 type Category = {
   _id: string
   name: string
+  description: string
   parentCategory: string | null
   image: string
 }
@@ -40,9 +43,11 @@ export default function CategoryManagement() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const { toast } = useToast()
   const router = useRouter()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchCategories()
+    setLoading(false)
   }, [])
 
   useEffect(() => {
@@ -83,6 +88,10 @@ export default function CategoryManagement() {
       await fetchCategories()
     }
     setIsDeleteDialogOpen(false)
+  }
+
+  if(loading) {
+    return <div className="h-screen flex justify-center items-center" ><Loader /></div>
   }
 
   return (

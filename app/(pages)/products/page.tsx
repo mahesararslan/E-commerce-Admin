@@ -27,6 +27,7 @@ import {
 import { Pencil, Trash2, Search, Plus} from "lucide-react"
 import axios from "axios"
 import { toast } from "@/hooks/use-toast"
+import Loader from "@/components/loader"
 
 type Product = {
     _id: string
@@ -105,6 +106,10 @@ export default function ProductsPage() {
       console.error("Error deleting product:", error)
     }
     setDeleteProductId(null)
+  }
+
+  if(loader) {
+    return <div className="h-screen flex justify-center items-center" ><Loader /></div>
   }
 
   return (

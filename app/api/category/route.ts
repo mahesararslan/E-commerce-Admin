@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const { name, parentCategory, image  } = await req.json();
+        const { name, parentCategory, image, description  } = await req.json();
 
         if (!name) {
             return NextResponse.json({
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
         await mongooseConnect();
 
         if(!parentCategory || parentCategory === "none") {
-            const category = await Category.create({ name, image });
+            const category = await Category.create({ name, image, description });
             return NextResponse.json({
                 status: 200,
                 message: "Category added successfully", category
@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
 
         const category = await Category.create({ 
             name,
+            description,
             parentCategory: parentCategory,
             image
          });
@@ -66,11 +67,12 @@ export async function PUT(req: NextRequest) {
     }
 
     try {
-        const { id, name, parentCategory } = await req.json();
-        console.log("UPDATING CATEGORY REQUEST RECEIVED:", id, name, parentCategory);
+        await mongooseConnect();
+        const { id, name, parentCategory, description, image } = await req.json();
+        console.log("description: ", description);  
 
         // If no parentCategory is provided, update only the name
-        let updateData: any = { name };
+        let updateData: any = { name, description, image };
 
         if (parentCategory) {
             updateData.parentCategory = parentCategory; // Add parentCategory field if parentCategory exists

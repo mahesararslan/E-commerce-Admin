@@ -27,11 +27,14 @@ import { Toaster } from "@/components/ui/toaster"
 import { Upload, X } from 'lucide-react'
 import { CldUploadWidget } from 'next-cloudinary'
 import axios from "axios"
+import { set } from "mongoose"
+import Loader from "@/components/loader"
 
 // Define the category type
 type Category = {
   _id: string
   name: string
+  description: string
   parentCategory: string | null
   image: string
 }
@@ -39,6 +42,7 @@ type Category = {
 // Zod schema for form validation
 const categorySchema = z.object({
   name: z.string().min(2, "Category name must be at least 2 characters"),
+  description: z.string().min(10, "Category description must be at least 10 characters"),
   parentCategory: z.string().nullable(),
   image: z.string().min(1, "Image is required")
 })
@@ -48,11 +52,13 @@ export default function AddCategory() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const { toast } = useToast()
   const router = useRouter()
+  const [loading, setLoading] = useState(true)
 
   const form = useForm<z.infer<typeof categorySchema>>({
     resolver: zodResolver(categorySchema),
     defaultValues: {
       name: "",
+      description: "",
       parentCategory: null,
       image: "",
     },
@@ -78,6 +84,7 @@ export default function AddCategory() {
     }
     console.log("Categories: ",categories)
     fetchCategories()
+    setLoading(false)
   }, [toast])
 
   const onSubmit = async (data: z.infer<typeof categorySchema>) => {
@@ -102,6 +109,10 @@ export default function AddCategory() {
     setImagePreview(null)
   }
 
+  if(loading) {
+    return <div className="h-screen flex justify-center items-center" ><Loader /></div>
+  }
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Add New Category</h1>
@@ -115,6 +126,19 @@ export default function AddCategory() {
                 <FormLabel>Category Name</FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Enter category name" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category Description</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter category description" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

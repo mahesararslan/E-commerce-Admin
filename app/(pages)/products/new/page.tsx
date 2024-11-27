@@ -54,7 +54,7 @@ const formSchema = z.object({
 export default function AddProductForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [categories, setCategories] = useState([])
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

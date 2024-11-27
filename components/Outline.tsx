@@ -6,7 +6,7 @@ import { useSession, signIn } from "next-auth/react"
 import { Providers } from "../app/providers"
 import { useState, useRef, useEffect } from "react"
 
-export default function Outline({ userDetails, children }: { userDetails: any; children: React.ReactNode }) {
+export default function Outline({ children }: { children: React.ReactNode }) {
   const { data: session } = useSession()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const sidebarRef = useRef<HTMLDivElement | null>(null) // Define ref for Sidebar
@@ -28,15 +28,11 @@ export default function Outline({ userDetails, children }: { userDetails: any; c
     }
   }, [sidebarRef])
 
-  // Use userDetails from props if available, otherwise fallback to session
-  const currentUserDetails = userDetails?.user || session?.user
-
-  if (currentUserDetails) {
     return (
       <div className="flex h-screen bg-blue-50">
         <Sidebar ref={sidebarRef} className={sidebarOpen ? "translate-x-0" : ""} />
         <div className="flex flex-1 flex-col overflow-hidden">
-          <Navbar userDetails={currentUserDetails} onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+          <Navbar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
           <main className="flex-1 overflow-x-hidden overflow-y-auto p-6 md:ml-64 mt-16 bg-gray-100">
             <Providers>{children}</Providers>
           </main>
@@ -45,11 +41,3 @@ export default function Outline({ userDetails, children }: { userDetails: any; c
     )
   }
 
-  return (
-    <>
-      <div>Not signed in</div>
-      <br />
-      <button onClick={() => signIn("google")}>Sign in with Google</button>
-    </>
-  )
-}
