@@ -44,6 +44,8 @@ const formSchema = z.object({
   price: z.number().min(0.01, {
     message: "Price must be at least $0.01.",
   }),
+  isOnSale: z.boolean().default(false),
+  salePrice: z.number().optional(),
   categoryId: z.string({
     required_error: "Please select a category.",
   }),
@@ -51,7 +53,16 @@ const formSchema = z.object({
     message: "Stock must be a non-negative integer.",
   }),
   images: z.array(z.string()).min(1, "At least one image is required.").max(5, "You can upload a maximum of 5 images."),
-})
+}).refine((data) => {
+  // If the product is on sale, ensure that salePrice is defined and is a positive number
+  if (data.isOnSale) {
+    return data.salePrice !== undefined && data.salePrice > 0;
+  }
+  return true;
+}, {
+  path: ['salePrice'], // Point to salePrice in case of an error
+  message: 'Sale price must be provided and greater than 0 if the product is on sale.',
+});
 
 export default function EditProductForm() {
   const router = useRouter()
@@ -68,11 +79,13 @@ export default function EditProductForm() {
       productName: "",
       productDescription: "",
       price: 0,
+      isOnSale: false,
+      salePrice: 0,
       categoryId: "",
       stock: 0,
       images: [],
     },
-  })
+  });
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -113,6 +126,8 @@ export default function EditProductForm() {
         images: productData.images || [],
         stock: productData.stock,
         categoryId: productData.category,
+        isOnSale: productData.isOnSale,
+        salePrice: productData.salePrice || undefined,
       })
     })
   }, [form])
@@ -228,6 +243,51 @@ export default function EditProductForm() {
           />
           <FormField
             control={form.control}
+            name="isOnSale"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>On Sale</FormLabel>
+                <FormControl>
+                  <Input
+                    type="checkbox"
+                    checked={field.value}
+                    onChange={field.onChange}
+                    className="ml-2 h-5 w-5"
+                  />
+                </FormControl>
+                <FormDescription>
+                  Check this box if the product is on sale.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          {form.watch("isOnSale") && (
+            <FormField
+              control={form.control}
+              name="salePrice"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sale Price (USD)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="0.00"
+                      {...field}
+                      onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                      className="transition-all duration-300 focus:ring-2 focus:ring-blue-500"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Set the sale price for your product if it is on sale.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
+          <FormField
+            control={form.control}
             name="categoryId"
             render={({ field }) => (
               <FormItem>
@@ -299,9 +359,13 @@ export default function EditProductForm() {
                             size="icon"
                             className="absolute -top-2 -right-2 h-6 w-6"
                             onClick={() => {
-                              const newImages = [...field.value]
-                              newImages.splice(index, 1)
-                              field.onChange(newImages)
+                              // const newImages = [...field.value]
+                              // newImages.splice(index, 1)
+                              // field.onChange(newImages)
+                              // remove image in array based on matching url
+                              const newImagesArray = field.value.filter((image) => image !== url)
+                              field.onChange(newImagesArray)
+
                             }}
                           >
                             <X className="h-4 w-4" />

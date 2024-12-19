@@ -15,23 +15,27 @@ export async function POST(request: Request) {
     }
 
   try {
-    const { productName, productDescription, price, images, stock, categoryId } = await request.json()
+    const { productName, productDescription, price, images, stock, categoryId, isOnSale, salePrice } = await request.json()
 
     // Connect to MongoDB
     await mongooseConnect()
 
-    // Create a new product document
-    const newProduct = {
+    let payload = {
       name: productName,
       description: productDescription,
       price: price,
       images: images,
       stock: stock,
-      category: categoryId
+      category: categoryId,
+      isOnSale: isOnSale
+    }
+
+    if(isOnSale) { // @ts-ignore
+      payload.salePrice = salePrice;
     }
 
     // Insert the new product into the database
-    const product = await Product.create(newProduct)
+    const product = await Product.create(payload);
     console.log('Product added:', product);
     return NextResponse.json({ message: 'Product added successfully', productId: product.insertedId }, { status: 201 })
   } catch (error) {

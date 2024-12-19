@@ -49,15 +49,24 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     
     try {
         await mongooseConnect();
-        console.log("Reieved Request for id: ", id, data);
-        const product = await Product.findByIdAndUpdate(id, {
+
+        // only add sale price if product is on sale
+        let payload = {
             name: data.productName,
             description: data.productDescription,
             price: data.price,
             images: data.images,
             stock: data.stock,
-            category: data.categoryId
-        }, { new: true });
+            category: data.categoryId,
+            isOnSale: data.isOnSale
+        }
+
+        if (data.isOnSale) { // @ts-ignore
+            payload.salePrice = data.salePrice;
+        }
+        
+        console.log("Reieved Request for id: ", id, data);
+        const product = await Product.findByIdAndUpdate(id, payload, { new: true });
 
         if (!product) {
             return NextResponse.json({ message: "Product not found", status: 401 });
