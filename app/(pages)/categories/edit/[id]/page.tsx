@@ -250,11 +250,11 @@ export default function EditCategory({ params }: { params: { id: string } }) {
               </FormItem>
             )}
           />
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => router.push('/categories')}>
+          <div className="flex justify-end space-x-4">
+            <Button type="button" variant="outline" className="hover:scale-110" onClick={() => router.push('/categories')}>
               Cancel
             </Button>
-            <Button type="submit">Update Category</Button>
+            <Button className="bg-sky-950 hover:bg-sky-950 hover:scale-110" type="submit">Update Category</Button>
           </div>
         </form>
       </Form>

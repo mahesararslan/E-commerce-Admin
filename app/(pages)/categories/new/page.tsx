@@ -216,11 +216,11 @@ export default function AddCategory() {
               </FormItem>
             )}
           />
-          <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => router.push('/categories')}>
+          <div className="flex justify-end space-x-4">
+            <Button type="button" variant="outline" className="hover:scale-110" onClick={() => router.push('/categories')}>
               Cancel
             </Button>
-            <Button type="submit">Add Category</Button>
+            <Button type="submit" className="bg-sky-950 hover:bg-sky-950 hover:scale-110">Add Category</Button>
           </div>
         </form>
       </Form>

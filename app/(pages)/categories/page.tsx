@@ -98,7 +98,7 @@ export default function CategoryManagement() {
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Category Management</h1>
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-2 sm:space-y-0">
-        <Button className="w-full sm:w-auto" onClick={() => router.push('/categories/new')}>
+        <Button className="w-full sm:w-auto bg-sky-950 hover:bg-sky-950 hover:scale-110" onClick={() => router.push('/categories/new')}>
           <Plus className="mr-2 h-4 w-4" /> Add New Category
         </Button>
         <div className="relative w-full sm:w-64">

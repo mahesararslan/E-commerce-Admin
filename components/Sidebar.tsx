@@ -22,7 +22,6 @@ const sidebarItems = [
   { name: "Products", href: "/products", icon: Package },
   { name: "Categories", href: "/categories", icon: ListTree },
   { name: "Orders", href: "/orders", icon: ClipboardList },
-  { name: "Admins", href: "/admins", icon: Users },
   { name: "Settings", href: "/settings", icon: Settings },
 ]
 

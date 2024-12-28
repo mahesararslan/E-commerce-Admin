@@ -223,7 +223,7 @@ export default function Dashboard() {
       </div>
 
       <div className="flex justify-center mt-8">
-        <Button className="bg-[#006064] hover:bg-[#00838f] text-white">
+        <Button className="bg-sky-950 hover:bg-sky-950 hover:scale-110 text-white">
           View Detailed Reports
         </Button>
       </div>

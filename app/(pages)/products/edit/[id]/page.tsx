@@ -398,7 +398,8 @@ export default function EditProductForm() {
           />
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full transition-all duration-300 bg-gray-800 hover:bg-gray-700" disabled={isSubmitting}>
+          <div className="flex items-start justify-end" >
+          <Button type="submit" className="w-full sm:w-fit transition-all duration-300 bg-sky-950 hover:bg-sky-950 hover:scale-110" disabled={isSubmitting}>
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -408,6 +409,7 @@ export default function EditProductForm() {
               "Update Product"
             )}
           </Button>
+          </div>
         </form>
       </Form>
       <Toaster />

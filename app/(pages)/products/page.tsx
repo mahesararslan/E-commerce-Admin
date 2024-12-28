@@ -137,20 +137,20 @@ export default function ProductsPage() {
           <Button
             variant={showSaleProducts ? "ghost" : "default"}
             onClick={() => toggleProducts(false)}
-            className={showSaleProducts ? "" : "underline"}
+            className={showSaleProducts ? "border-2 shadow-lg hover:scale-110" : "bg-sky-950 hover:bg-sky-950 hover:scale-110"}
           >
             All Products
           </Button>
           <Button
             variant={showSaleProducts ? "default" : "ghost"}
             onClick={() => toggleProducts(true)}
-            className={showSaleProducts ? "underline" : ""}
+            className={showSaleProducts ? "bg-sky-950 hover:bg-sky-950 hover:scale-110" : "border-2 shadow-lg hover:scale-110"}
           >
             On Sale
           </Button>
         </div>
         <Link href="/products/new">
-          <Button>
+          <Button className="bg-sky-950 hover:bg-sky-950 hover:scale-110">
             <Plus className="mr-2 h-4 w-4" />
             Add New Product
           </Button>

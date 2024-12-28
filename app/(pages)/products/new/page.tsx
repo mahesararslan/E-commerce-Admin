@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import axios from "axios"
+import { useRouter } from "next/navigation"
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 
@@ -67,6 +68,7 @@ export default function AddProductForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [categories, setCategories] = useState([])
   const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -132,6 +134,9 @@ export default function AddProductForm() {
       })
     } finally {
       setIsSubmitting(false)
+      setTimeout(() => {
+        router.push("/products")
+      }, 2000)
     }
   }
 
@@ -355,9 +360,10 @@ export default function AddProductForm() {
               </FormItem>
             )}
           />
+          <div className="flex justify-end">
           <Button
             type="submit"
-            className="w-full transition-all duration-300 bg-gray-800 hover:bg-gray-700"
+            className="w-full sm:w-fit  transition-all duration-300 bg-sky-950 hover:bg-sky-950 sm:hover:scale-110"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
@@ -369,6 +375,7 @@ export default function AddProductForm() {
               "Add Product"
             )}
           </Button>
+          </div>
         </form>
       </Form>
       <Toaster />
