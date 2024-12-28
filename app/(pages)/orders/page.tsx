@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { toast } from "@/hooks/use-toast"
+import Loader from "@/components/loader"
 
 type Order = {
   _id: string
@@ -47,6 +48,7 @@ export default function OrdersPage() {
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([])
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "shipped">("all")
+  const [loader, setLoader] = useState(true)
 
   useEffect(() => {
     fetchOrders()
@@ -60,6 +62,7 @@ export default function OrdersPage() {
     try {
       const response = await axios.get("/api/orders")
       setOrders(response.data.orders.reverse()) // Reverse to show recent orders first
+      setLoader(false)
     } catch (error) {
       console.error("Error fetching orders:", error)
       toast({
@@ -102,6 +105,14 @@ export default function OrdersPage() {
       })
     }
   }
+
+  if (loader) {
+      return (
+        <div className="h-screen flex justify-center items-center">
+          <Loader />
+        </div>
+      )
+    }
 
   return (
     <div className="container mx-auto py-10">

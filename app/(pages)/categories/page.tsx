@@ -44,6 +44,7 @@ export default function CategoryManagement() {
   const { toast } = useToast()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [loader, setLoader] = useState(true)
 
   useEffect(() => {
     fetchCategories()
@@ -62,6 +63,7 @@ export default function CategoryManagement() {
     const response = await axios.get("/api/category");
     setCategories(response.data.categories)
     setFilteredCategories(response.data.categories)
+    setLoader(false)
   }
 
   const handleDelete = (category: Category) => {
@@ -90,9 +92,13 @@ export default function CategoryManagement() {
     setIsDeleteDialogOpen(false)
   }
 
-  if(loading) {
-    return <div className="h-screen flex justify-center items-center" ><Loader /></div>
-  }
+  if (loader) {
+      return (
+        <div className="h-screen flex justify-center items-center">
+          <Loader />
+        </div>
+      )
+    }
 
   return (
     <div className="container mx-auto p-4">
